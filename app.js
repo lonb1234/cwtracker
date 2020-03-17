@@ -1,0 +1,69 @@
+const express=require("express");
+const https = require("https");
+const bodyParser=require("body-parser");
+var covid = require('novelcovid');
+var cors = require("cors");
+var axios = require("axios");
+var cheerio = require("cheerio");
+
+const app= express();
+
+app.use(bodyParser.urlencoded({extended:true}))
+app.get("/", function (req, res){
+res.sendFile(__dirname + "/index.html");
+
+});
+app.post("/", function(req,res){
+
+  console.log("post received")
+  const query=req.body.cityName;
+  const apiKey="895485ba00078eacde98c8415a4d4551";
+  const units = "metric";
+  const url="https://api.openweathermap.org/data/2.5/weather?q=" + query + "&appid=" + apiKey + "&units=" + units;
+
+  https.get(url, function (response){
+    console.log(response.statusCode);
+
+    response.on("data", function(data){
+      const weatherData=JSON.parse(data);
+
+      const temp=weatherData.main.temp
+
+      const description=weatherData.weather[0].description
+
+      const icon=weatherData.weather[0].icon
+      res.write("<p>The weather is currently " + description + "<p>");
+      res.write("<h1>The temperature in " + query+ " is " +temp + " degree Celcius</h1>")
+      res.write("<img src=https://openweathermap.org/img/wn/" + icon + "@2x.png>")
+      // https://corona.lmao.ninja/countries/[country-name] f
+  // for(const o of["all","countries/" + query])exports[o]=(async()=>{const t=await require("node-fetch")(`https://corona.lmao.ninja/${o}`);return await t.json()});
+  //
+  //     covid.countries(query)
+  // .then((data) => console.log(data))
+  // .catch((err) => console.error(err));
+
+
+  const url2="https://corona.lmao.ninja/countries/" + query ;
+
+  https.get(url2, function (response){
+    console.log(response.statusCode);
+
+    response.on("data", function(data){
+      const cdata=JSON.parse(data);
+      console.log(cdata)
+
+      res.send()
+})})
+    })
+  } )
+})
+
+
+// app.post("/", function(req,res){
+
+
+
+
+app.listen(3000, function(){
+  console.log("server is running")
+})
